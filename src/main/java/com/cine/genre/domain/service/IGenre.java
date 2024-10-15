@@ -4,13 +4,14 @@ import com.cine.genre.persistence.Genre;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface IGenre {
-  Optional<Genre> findById(Long id);
+  Genre findById(Long id);
 
   List<Genre> findAll();
 
-  Genre save(Genre genre);
+  List<Genre> save(Set<Genre> genre);
 
-  Genre delete(Long id);
+  void delete(Long id);
 }
