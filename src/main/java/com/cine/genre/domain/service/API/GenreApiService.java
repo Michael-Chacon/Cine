@@ -31,7 +31,6 @@ public class GenreApiService implements IApiGenre {
             HttpMethod.GET,
             entity,
            GenreResponse.class);
-    System.out.println(result);
     return result;
   }
 }
