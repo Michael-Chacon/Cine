@@ -20,6 +20,7 @@ import org.hibernate.annotations.Fetch;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.Objects;
 
 @Setter
 @Getter
@@ -52,4 +53,29 @@ public class Actor {
       cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinColumn(name = "genderId")
   Gender gender;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Actor actor)) return false;
+    return getId().equals(actor.getId())
+        && getName().equals(actor.getName())
+        && getBirthday().equals(actor.getBirthday())
+        && Objects.equals(getProfilePath(), actor.getProfilePath())
+        && getPlaceOfBirth().equals(actor.getPlaceOfBirth())
+        && getPopularity().equals(actor.getPopularity())
+        && getBiography().equals(actor.getBiography());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        getId(),
+        getName(),
+        getBirthday(),
+        getProfilePath(),
+        getPlaceOfBirth(),
+        getPopularity(),
+        getBiography());
+  }
 }

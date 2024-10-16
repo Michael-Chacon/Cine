@@ -9,15 +9,17 @@ import com.cine.utils.Utils;
 import com.cine.utils.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
+@Transactional
 public class ActorService implements IActor {
   @Autowired IActorRepository repository;
   @Autowired IGender genderService;
 
+  @Transactional(readOnly = true)
   @Override
   public Actor findById(Long id) {
     return repository
@@ -25,6 +27,7 @@ public class ActorService implements IActor {
         .orElseThrow(() -> new ResourceNotFoundException("No existe un actor con el id " + id));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Actor> findAll() {
     return repository.findAll();
