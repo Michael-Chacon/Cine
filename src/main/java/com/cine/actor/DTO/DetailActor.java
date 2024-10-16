@@ -7,7 +7,7 @@ public record DetailActor(
     String name,
     LocalDate birthday,
     String profile_path,
-    int gender,
+    Long gender,
     String place_of_birth,
     Double popularity,
     String biography) {}
