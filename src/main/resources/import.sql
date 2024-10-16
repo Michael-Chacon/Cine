@@ -1,0 +1,1 @@
+INSERT INTO genders (gender_id, name) VALUES (1, 'femenino'), (2, 'masculino');
