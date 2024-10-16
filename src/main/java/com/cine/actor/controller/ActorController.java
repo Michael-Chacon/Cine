@@ -1,7 +1,9 @@
 package com.cine.actor.controller;
 
+import com.cine.actor.DTO.DetailActor;
 import com.cine.actor.DTO.ResponseSearchActor;
 import com.cine.actor.DTO.SearchActor;
+import com.cine.actor.domain.service.API.IApiDetailActor;
 import com.cine.actor.domain.service.API.IApiSearchActor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,9 +21,15 @@ import java.util.List;
 @RequestMapping("/actors")
 public class ActorController {
   @Autowired private IApiSearchActor apiSearchActorService;
+  @Autowired private IApiDetailActor apiDetailActorService;
 
-  @GetMapping("/tmdb/{name}")
-  public ResponseEntity<List<SearchActor>> searchActor(@PathVariable String name) throws JsonProcessingException {
+  @GetMapping("/tmdb/search/{name}")
+  public ResponseEntity<List<SearchActor>> searchActor(@PathVariable String name) {
     return ResponseEntity.ok(apiSearchActorService.SearchActor(name));
+  }
+
+  @GetMapping("/tmdb/detail/{id}")
+  public ResponseEntity<DetailActor> detailActor(@PathVariable Long id) {
+    return ResponseEntity.ok(apiDetailActorService.actor(id));
   }
 }
