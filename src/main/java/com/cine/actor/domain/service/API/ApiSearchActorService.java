@@ -2,6 +2,7 @@ package com.cine.actor.domain.service.API;
 
 import com.cine.actor.DTO.ResponseSearchActor;
 import com.cine.actor.DTO.SearchActor;
+import com.cine.utils.ConfigTMDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,17 +15,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.cine.utils.Constants.TOKEN;
 import static com.cine.utils.Constants.URL_BASE;
 
 @Service
 public class ApiSearchActorService implements IApiSearchActor {
   @Autowired RestTemplate restTemplate;
+  @Autowired ConfigTMDB token;
 
   @Override
   public List<SearchActor> SearchActor(String name) {
     HttpHeaders headers = new HttpHeaders();
-    headers.setBearerAuth(TOKEN);
+    headers.setBearerAuth(token.getToken());
 
     HttpEntity<?> entity = new HttpEntity<>(headers);
 
