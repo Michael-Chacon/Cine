@@ -43,10 +43,18 @@ public class MovieService implements IMovie {
     movie.setVote_average(movieDto.vote_average());
     movie.setVote_count(movieDto.vote_count());
     movie.setRelease_date(movieDto.release_date());
-    movie.setPoster_path(movieDto.poster_path());
-    movie.setBackdrop_path(movieDto.backdrop_path());
+    movie.setPoster_path(
+        movieDto.poster_path() != null
+            ? "https://image.tmdb.org/t/p/w500" + movieDto.poster_path()
+            : null);
+    movie.setBackdrop_path(
+        movieDto.backdrop_path() != null
+            ? "https://image.tmdb.org/t/p/original" + movieDto.backdrop_path()
+            : null);
     movie.setPopularity(movieDto.popularity());
     movie.setOverview(movieDto.overview());
+    // addGenres: validar que los géneros existen en la db y agruparlos en una lista para enviarlos
+    // a la entidad
     movie.setGenres(addGenres(movieDto.genres()));
     movie.setRuntime(movieDto.runtime());
     repository.save(movie);
