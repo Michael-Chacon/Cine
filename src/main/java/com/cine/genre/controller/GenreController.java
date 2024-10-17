@@ -1,5 +1,6 @@
 package com.cine.genre.controller;
 
+import com.cine.genre.DTO.GenreDTO;
 import com.cine.genre.DTO.GenreResponse;
 import com.cine.genre.domain.service.API.IApiGenre;
 import com.cine.genre.domain.service.IGenre;
@@ -25,8 +26,8 @@ public class GenreController {
   @Autowired private IGenre service;
 
   @GetMapping("/tmdb")
-  public ResponseEntity<GenreResponse> getAllForAPI() {
-    return genreApiService.getAll();
+  public ResponseEntity<List<GenreDTO>> getAllForAPI() {
+    return ResponseEntity.ok(genreApiService.getAllGenres());
   }
 
   @GetMapping("/{id}")

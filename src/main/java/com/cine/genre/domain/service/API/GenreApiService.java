@@ -1,6 +1,8 @@
 package com.cine.genre.domain.service.API;
 
+import com.cine.genre.DTO.GenreDTO;
 import com.cine.genre.DTO.GenreResponse;
+import com.cine.genre.persistence.Genre;
 import com.cine.utils.ConfigTMDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -10,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static com.cine.utils.Constants.URL_BASE;
 
 @Service
@@ -18,7 +23,7 @@ public class GenreApiService implements IApiGenre {
   @Autowired ConfigTMDB token;
 
   @Override
-  public ResponseEntity<GenreResponse> getAll() {
+  public List<GenreDTO> getAllGenres() {
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.setBearerAuth(token.getToken());
     HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
@@ -29,6 +34,11 @@ public class GenreApiService implements IApiGenre {
             HttpMethod.GET,
             entity,
             GenreResponse.class);
-    return result;
+
+    GenreResponse response = result.getBody();
+
+    return response.genres().stream()
+        .map(genre -> new GenreDTO(genre.id(), genre.name()))
+        .collect(Collectors.toList());
   }
 }
