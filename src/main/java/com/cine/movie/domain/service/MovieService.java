@@ -3,7 +3,7 @@ package com.cine.movie.domain.service;
 import com.cine.genre.domain.repository.GenreRepository;
 import com.cine.genre.persistence.Genre;
 import com.cine.movie.DTO.DetailsMovie;
-import com.cine.movie.DTO.GenreOnlyId;
+import com.cine.movie.DTO.GenreDTO;
 import com.cine.movie.domain.repository.MovieRepository;
 import com.cine.movie.persistence.Movie;
 import com.cine.utils.exceptions.ResourceNotFoundException;
@@ -66,11 +66,19 @@ public class MovieService implements IMovie {
     repository.deleteById(id);
   }
 
-  public List<Genre> addGenres(List<GenreOnlyId> genres) {
+  public List<Genre> addGenres(List<GenreDTO> genres) {
     List<Genre> listGenres = new ArrayList<>();
-    for (GenreOnlyId genreId : genres) {
-      Optional<Genre> genre = genreRepository.findById(genreId.id());
-      genre.ifPresent(listGenres::add);
+
+    for (GenreDTO genre : genres) {
+      Optional<Genre> isThereGenre = genreRepository.findById(genre.id());
+      //      genre.ifPresent(listGenres::add);
+
+      if (isThereGenre.isPresent()) {
+        listGenres.add(isThereGenre.get());
+      } else {
+        Genre newGenre = new Genre(genre.id(), genre.name());
+        listGenres.add(genreRepository.save(newGenre));
+      }
     }
     return listGenres;
   }

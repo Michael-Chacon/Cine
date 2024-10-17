@@ -32,8 +32,13 @@ public class GenreService implements IGenre {
   }
 
   @Override
-  public List<Genre> save(Set<Genre> genre) {
+  public List<Genre> saveListOfGenres(Set<Genre> genre) {
     return repository.saveAllAndFlush(genre);
+  }
+
+  @Override
+  public Genre saveOneGenre(Genre genre) {
+    return repository.save(genre);
   }
 
   @Override

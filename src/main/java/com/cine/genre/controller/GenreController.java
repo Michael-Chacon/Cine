@@ -42,7 +42,7 @@ public class GenreController {
 
   @PostMapping("/save")
   public ResponseEntity<List<Genre>> save(@RequestBody Set<Genre> genres) {
-    return ResponseEntity.ok(service.save(genres));
+    return ResponseEntity.ok(service.saveListOfGenres(genres));
   }
 
   @DeleteMapping("/{id}")
