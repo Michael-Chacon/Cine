@@ -71,7 +71,6 @@ public class MovieService implements IMovie {
 
     for (GenreDTO genre : genres) {
       Optional<Genre> isThereGenre = genreRepository.findById(genre.id());
-      //      genre.ifPresent(listGenres::add);
 
       if (isThereGenre.isPresent()) {
         listGenres.add(isThereGenre.get());

@@ -37,11 +37,6 @@ public class GenreService implements IGenre {
   }
 
   @Override
-  public Genre saveOneGenre(Genre genre) {
-    return repository.save(genre);
-  }
-
-  @Override
   public void delete(Long id) {
     repository.deleteById(id);
   }
