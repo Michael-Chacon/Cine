@@ -1,6 +1,7 @@
 package com.cine.actor.DTO;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 public record DetailActor(
     Long id,

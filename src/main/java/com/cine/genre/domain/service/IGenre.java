@@ -11,7 +11,7 @@ public interface IGenre {
 
   List<Genre> findAll();
 
-  List<Genre> save(Set<Genre> genre);
+  List<Genre> saveListOfGenres(Set<Genre> genre);
 
   void delete(Long id);
 }

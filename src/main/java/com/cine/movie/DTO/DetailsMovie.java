@@ -12,6 +12,7 @@ public record DetailsMovie(
     String backdrop_path,
     Double popularity,
     Long vote_count,
-    List<GenreOnlyId> genres,
+    List<CastingDTO> casting,
+    List<GenreDTO> genres,
     String overview,
-Long runtime) {}
+    Long runtime) {}
