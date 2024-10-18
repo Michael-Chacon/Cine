@@ -1,5 +1,6 @@
 package com.cine.movie.persistence;
 
+import com.cine.actor.persistence.Actor;
 import com.cine.genre.persistence.Genre;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -51,6 +52,15 @@ public class Movie {
       joinColumns = @JoinColumn(name = "movie_id"),
       inverseJoinColumns = @JoinColumn(name = "genre_id"))
   List<Genre> genres;
+
+  @ManyToMany(
+      fetch = FetchType.EAGER,
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinTable(
+      name = "movie_actors",
+      joinColumns = @JoinColumn(name = "movie_id"),
+      inverseJoinColumns = @JoinColumn(name = "actor_id"))
+  List<Actor> casting;
 
   @Override
   public boolean equals(Object o) {

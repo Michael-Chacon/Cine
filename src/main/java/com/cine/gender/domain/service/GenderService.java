@@ -16,6 +16,12 @@ public class GenderService implements IGender {
   public Gender findById(Long id) {
     return repository
         .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("No existe un genero con el id " + id));
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    "No existe un genero con el id "
+                        + id
+                        + ". Root: "
+                        + GenderService.class.getSimpleName()));
   }
 }
