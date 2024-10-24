@@ -16,23 +16,39 @@ import com.cine.movie.domain.service.API.IApiCasting;
 import com.cine.movie.persistence.Movie;
 import com.cine.utils.Utils;
 import com.cine.utils.exceptions.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static com.cine.utils.Constants.DEFAULT_BIRTHDAY;
 
 @Transactional
 @Service
 public class MovieService implements IMovie {
-  @Autowired private MovieRepository repository;
-  @Autowired private GenreRepository genreRepository;
-  @Autowired private IApiCasting castingService;
-  @Autowired private IActorRepository actorRepository;
-  @Autowired private IApiDetailActor detailActorService;
-  @Autowired private IGender genderService;
+  private final MovieRepository repository;
+  private final GenreRepository genreRepository;
+  private final IApiCasting castingService;
+  private final IActorRepository actorRepository;
+  private final IApiDetailActor detailActorService;
+  private final IGender genderService;
+
+  public MovieService(
+      MovieRepository repository,
+      GenreRepository genreRepository,
+      IApiCasting castingService,
+      IActorRepository actorRepository,
+      IApiDetailActor detailActorService,
+      IGender genderService) {
+    this.repository = repository;
+    this.genreRepository = genreRepository;
+    this.castingService = castingService;
+    this.actorRepository = actorRepository;
+    this.detailActorService = detailActorService;
+    this.genderService = genderService;
+  }
 
   @Transactional(readOnly = true)
   @Override
@@ -48,6 +64,7 @@ public class MovieService implements IMovie {
     return repository.findAll();
   }
 
+  //  Método para guardar en la base de datos una película que viene de la API de TMDB.
   @Override
   public DetailsMovie save(DetailsMovie movieDto) {
     Movie movie = new Movie();
@@ -56,6 +73,7 @@ public class MovieService implements IMovie {
     movie.setVote_average(movieDto.vote_average());
     movie.setVote_count(movieDto.vote_count());
     movie.setRelease_date(movieDto.release_date());
+    //    Si la img no es nula, colocamos la URL base para poder mostrar las imágenes.
     movie.setPoster_path(
         movieDto.poster_path() != null
             ? "https://image.tmdb.org/t/p/w500" + movieDto.poster_path()
@@ -71,8 +89,10 @@ public class MovieService implements IMovie {
     // enviarlos a la entidad
     movie.setGenres(searchAndGetGenres(movieDto.genres()));
 
+    //    Obtener la lista de ID de los actores que participan en la película.
     List<CastingDTO> casting = castingService.getFullCast(movieDto.id());
-    movie.setCasting(searchAndGetActor(casting));
+    //    Obtener los actores y relacionarlos con la peli.
+    movie.setCasting(searchAndGetActors(casting));
 
     repository.save(movie);
 
@@ -84,53 +104,49 @@ public class MovieService implements IMovie {
     repository.deleteById(id);
   }
 
+  // Método que busca y obtiene géneros con base a una lista GenreDTO
+  @Transactional
   public List<Genre> searchAndGetGenres(List<GenreDTO> genres) {
-    List<Genre> listGenres = new ArrayList<>();
-
-    for (GenreDTO genre : genres) {
-      Optional<Genre> isThereGenre = genreRepository.findById(genre.id());
-
-      if (isThereGenre.isPresent()) {
-        listGenres.add(isThereGenre.get());
-      } else {
-        // Si el género no existe en la base de datos local, se buscará y registrará y se agregará a
-        // la lista.
-        Genre newGenre = new Genre(genre.id(), genre.name());
-        listGenres.add(genreRepository.save(newGenre));
-      }
-    }
-    return listGenres;
+    return genres.stream()
+        .map(genre -> genreRepository.findById(genre.id()).orElseGet(() -> createNewGenre(genre)))
+        .collect(Collectors.toList());
   }
 
-  public List<Actor> searchAndGetActor(List<CastingDTO> casting) {
-    List<Actor> listActors = new ArrayList<>();
-    for (CastingDTO cast : casting) {
-      Optional<Actor> isThereActor = actorRepository.findById(cast.id());
-      if (isThereActor.isPresent()) {
-        listActors.add(isThereActor.get());
-      } else {
-        DetailActor detailActor = detailActorService.actor(cast.id());
-        if (detailActor.profile_path() != null && detailActor.gender() != 0) {
-          Gender gender = genderService.findById(detailActor.gender());
-          Actor actor =
-              Actor.builder()
-                  .id(detailActor.id())
-                  .name(detailActor.name())
-                  .birthday(
-                      Utils.overcomeToDate(
-                          detailActor.birthday() == null
-                              ? "1977-07-21"
-                              : detailActor.birthday().toString()))
-                  .profilePath(detailActor.profile_path())
-                  .placeOfBirth(detailActor.place_of_birth())
-                  .popularity(detailActor.popularity())
-                  .biography(detailActor.biography())
-                  .gender(gender)
-                  .build();
-          listActors.add(actorRepository.save(actor));
-        }
-      }
+  // Método auxiliar que crea un género si no existe en la base de datos
+  public Genre createNewGenre(GenreDTO genreDTO) {
+    Genre genre = new Genre(genreDTO.id(), genreDTO.name());
+    return genreRepository.save(genre);
+  }
+
+  // Método que busca y obtiene actores con base en una lista de CastingDTO
+  @Transactional
+  public List<Actor> searchAndGetActors(List<CastingDTO> castingDTOS) {
+    return castingDTOS.stream()
+        .map(cast -> actorRepository.findById(cast.id()).orElseGet(() -> createNewActor(cast.id())))
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
+  }
+
+  //  Método auxiliar que crea un nuevo actor si existe en la base de datos
+  public Actor createNewActor(Long id) {
+    DetailActor detailActor = detailActorService.actor(id);
+    if (detailActor.profile_path() != null && detailActor.gender() != 0) {
+      Gender gender = genderService.findById(detailActor.gender());
+      return Actor.builder()
+          .id(detailActor.id())
+          .name(detailActor.name())
+          .birthday(
+              Utils.overcomeToDate(
+                  detailActor.birthday() == null
+                      ? DEFAULT_BIRTHDAY
+                      : detailActor.birthday().toString()))
+          .profilePath(detailActor.profile_path())
+          .placeOfBirth(detailActor.place_of_birth())
+          .popularity(detailActor.popularity())
+          .biography(detailActor.biography())
+          .gender(gender)
+          .build();
     }
-    return listActors;
+    return null;
   }
 }
