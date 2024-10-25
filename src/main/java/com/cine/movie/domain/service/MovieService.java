@@ -124,6 +124,8 @@ public class MovieService implements IMovie {
     return castingDTOS.stream()
         .map(cast -> actorRepository.findById(cast.id()).orElseGet(() -> createNewActor(cast.id())))
         .filter(Objects::nonNull)
+        // Registrar solo los 10 primeros actores de la película
+        .limit(10)
         .collect(Collectors.toList());
   }
 
