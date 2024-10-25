@@ -3,6 +3,7 @@ package com.cine.movie.controller;
 import com.cine.movie.DTO.DetailsMovie;
 import com.cine.movie.DTO.SearchMovie;
 import com.cine.movie.domain.service.API.ApiDetailsMovieService;
+import com.cine.movie.domain.service.API.IApiDetailsMovie;
 import com.cine.movie.domain.service.API.IApiSearchMovie;
 import com.cine.movie.domain.service.IMovie;
 import com.cine.movie.persistence.Movie;
@@ -21,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/movies")
 public class MovieController {
   @Autowired private IApiSearchMovie apiSearchMovie;
-  @Autowired private ApiDetailsMovieService apiDetailsMovieService;
+  @Autowired private IApiDetailsMovie apiDetailsMovieService;
   @Autowired private IMovie movieService;
 
   @GetMapping("/tmdb/search/{name}")
