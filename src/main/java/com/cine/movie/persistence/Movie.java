@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +41,8 @@ public class Movie {
   Double popularity;
   Long vote_count;
   Long runtime;
+  BigDecimal budget;
+  BigDecimal revenue;
 
   @Column(columnDefinition = "TEXT")
   String overview;

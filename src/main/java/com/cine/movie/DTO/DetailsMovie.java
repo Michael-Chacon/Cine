@@ -1,5 +1,6 @@
 package com.cine.movie.DTO;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +14,8 @@ public record DetailsMovie(
     Double popularity,
     Long vote_count,
     List<CastingDTO> casting,
-    List<GenreDTO> genres,
+    List<GenreMovieDTO> genres,
     String overview,
-    Long runtime) {}
+    Long runtime,
+    BigDecimal budget,
+    BigDecimal revenue) {}

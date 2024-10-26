@@ -10,7 +10,7 @@ import com.cine.genre.domain.repository.GenreRepository;
 import com.cine.genre.persistence.Genre;
 import com.cine.movie.DTO.CastingDTO;
 import com.cine.movie.DTO.DetailsMovie;
-import com.cine.movie.DTO.GenreDTO;
+import com.cine.movie.DTO.GenreMovieDTO;
 import com.cine.movie.domain.repository.MovieRepository;
 import com.cine.movie.domain.service.API.IApiCasting;
 import com.cine.movie.persistence.Movie;
@@ -19,6 +19,7 @@ import com.cine.utils.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -73,6 +74,8 @@ public class MovieService implements IMovie {
     movie.setVote_average(movieDto.vote_average());
     movie.setVote_count(movieDto.vote_count());
     movie.setRelease_date(movieDto.release_date());
+    movie.setBudget(movieDto.budget());
+    movie.setRevenue(movieDto.revenue());
     //    Si la img no es nula, colocamos la URL base para poder mostrar las imágenes.
     movie.setPoster_path(
         movieDto.poster_path() != null
@@ -104,17 +107,17 @@ public class MovieService implements IMovie {
     repository.deleteById(id);
   }
 
-  // Método que busca y obtiene géneros con base a una lista GenreDTO
+  // Método que busca y obtiene géneros con base a una lista GenreMovieDTO
   @Transactional
-  public List<Genre> searchAndGetGenres(List<GenreDTO> genres) {
+  public List<Genre> searchAndGetGenres(List<GenreMovieDTO> genres) {
     return genres.stream()
         .map(genre -> genreRepository.findById(genre.id()).orElseGet(() -> createNewGenre(genre)))
         .collect(Collectors.toList());
   }
 
   // Método auxiliar que crea un género si no existe en la base de datos
-  public Genre createNewGenre(GenreDTO genreDTO) {
-    Genre genre = new Genre(genreDTO.id(), genreDTO.name());
+  public Genre createNewGenre(GenreMovieDTO genreMovieDTO) {
+    Genre genre = new Genre(genreMovieDTO.id(), genreMovieDTO.name());
     return genreRepository.save(genre);
   }
 
