@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/director")
 public class DirectorController {
-  private IApiDirector directorService;
+  private final IApiDirector directorService;
 
   public DirectorController(IApiDirector directorService) {
     this.directorService = directorService;

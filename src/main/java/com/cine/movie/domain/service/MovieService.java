@@ -4,6 +4,9 @@ import com.cine.actor.DTO.DetailActor;
 import com.cine.actor.domain.repository.IActorRepository;
 import com.cine.actor.domain.service.API.IApiDetailActor;
 import com.cine.actor.persistence.Actor;
+import com.cine.director.DTO.DirectorDetailDTO;
+import com.cine.director.domain.service.API.IApiDirector;
+import com.cine.director.persistece.Director;
 import com.cine.gender.domain.service.IGender;
 import com.cine.gender.persistence.Gender;
 import com.cine.genre.domain.repository.GenreRepository;
@@ -19,7 +22,6 @@ import com.cine.utils.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -35,6 +37,7 @@ public class MovieService implements IMovie {
   private final IActorRepository actorRepository;
   private final IApiDetailActor detailActorService;
   private final IGender genderService;
+  private final IApiDirector directorService;
 
   public MovieService(
       MovieRepository repository,
@@ -42,13 +45,15 @@ public class MovieService implements IMovie {
       IApiCasting castingService,
       IActorRepository actorRepository,
       IApiDetailActor detailActorService,
-      IGender genderService) {
+      IGender genderService,
+      IApiDirector directorService) {
     this.repository = repository;
     this.genreRepository = genreRepository;
     this.castingService = castingService;
     this.actorRepository = actorRepository;
     this.detailActorService = detailActorService;
     this.genderService = genderService;
+    this.directorService = directorService;
   }
 
   @Transactional(readOnly = true)
@@ -97,6 +102,8 @@ public class MovieService implements IMovie {
     //    Obtener los actores y relacionarlos con la peli.
     movie.setCasting(searchAndGetActors(casting));
 
+    movie.setDirector(costruirDirector(directorService.findDirectorOfMovie(movie.getId())));
+
     repository.save(movie);
 
     return movieDto;
@@ -124,6 +131,7 @@ public class MovieService implements IMovie {
   // Método que busca y obtiene actores con base en una lista de CastingDTO
   @Transactional
   public List<Actor> searchAndGetActors(List<CastingDTO> castingDTOS) {
+
     return castingDTOS.stream()
         .map(cast -> actorRepository.findById(cast.id()).orElseGet(() -> createNewActor(cast.id())))
         .filter(Objects::nonNull)
@@ -132,8 +140,10 @@ public class MovieService implements IMovie {
         .collect(Collectors.toList());
   }
 
+
   //  Método auxiliar que crea un nuevo actor si existe en la base de datos
   public Actor createNewActor(Long id) {
+
     DetailActor detailActor = detailActorService.actor(id);
     if (detailActor.profile_path() != null && detailActor.gender() != 0) {
       Gender gender = genderService.findById(detailActor.gender());
@@ -153,5 +163,22 @@ public class MovieService implements IMovie {
           .build();
     }
     return null;
+  }
+
+//  public Director searchAndGetDirector(Long idDirector){
+//
+//  }
+
+  public Director costruirDirector(DirectorDetailDTO directorDTO) {
+    Gender gender = genderService.findById(directorDTO.gender());
+    return new Director(
+        directorDTO.id(),
+        directorDTO.name(),
+        Utils.overcomeToDate(directorDTO.birthday().toString()),
+        directorDTO.profile_path(),
+        directorDTO.place_of_birth(),
+        directorDTO.popularity(),
+        directorDTO.biography(),
+        gender);
   }
 }
