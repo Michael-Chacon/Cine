@@ -1,6 +1,7 @@
 package com.cine.movie.persistence;
 
 import com.cine.actor.persistence.Actor;
+import com.cine.director.persistece.Director;
 import com.cine.genre.persistence.Genre;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -10,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -46,6 +48,12 @@ public class Movie {
 
   @Column(columnDefinition = "TEXT")
   String overview;
+
+  @ManyToOne(
+      fetch = FetchType.EAGER,
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinColumn(name = "DirectorId")
+  Director director;
 
   @ManyToMany(
       fetch = FetchType.EAGER,
