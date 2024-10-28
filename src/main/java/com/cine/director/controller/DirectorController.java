@@ -18,8 +18,8 @@ public class DirectorController {
     this.directorService = directorService;
   }
 
-  @GetMapping("/tmdb/details/{id}")
-  public ResponseEntity<DirectorDetailDTO> getDirector(@PathVariable Long id) {
-    return ResponseEntity.ok(directorService.findDirectorOfMovie(id));
-  }
+//  @GetMapping("/tmdb/details/{id}")
+//  public ResponseEntity<DirectorDetailDTO> getDirector(@PathVariable Long id) {
+//    return ResponseEntity.ok(directorService.findDirectorOfMovie(id));
+//  }
 }

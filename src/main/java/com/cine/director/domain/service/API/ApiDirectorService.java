@@ -1,11 +1,10 @@
 package com.cine.director.domain.service.API;
 
-import com.cine.actor.DTO.DetailActor;
-import com.cine.actor.domain.service.API.IApiDetailActor;
 import com.cine.director.DTO.ApiResponseDirector;
 import com.cine.director.DTO.DirectorDetailDTO;
 import com.cine.director.DTO.DirectorIdDTO;
 import com.cine.utils.ConfigTMDB;
+import com.cine.utils.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,17 +18,14 @@ import static com.cine.utils.Constants.URL_BASE;
 public class ApiDirectorService implements IApiDirector {
   private final RestTemplate restTemplate;
   private final ConfigTMDB token;
-  private final IApiDetailActor apiDetailActor;
 
-  public ApiDirectorService(
-      RestTemplate restTemplate, ConfigTMDB token, IApiDetailActor apiDetailActor) {
+  public ApiDirectorService(RestTemplate restTemplate, ConfigTMDB token) {
     this.restTemplate = restTemplate;
     this.token = token;
-    this.apiDetailActor = apiDetailActor;
   }
 
   @Override
-  public DirectorIdDTO findIdDirector(Long idMovie) {
+  public Long findIdDirector(Long idMovie) {
     HttpHeaders headers = new HttpHeaders();
     headers.setBearerAuth(token.getToken());
     HttpEntity<?> entity = new HttpEntity<>(headers);
@@ -42,25 +38,26 @@ public class ApiDirectorService implements IApiDirector {
             ApiResponseDirector.class);
 
     ApiResponseDirector responseBody = response.getBody();
+    assert responseBody != null;
     return responseBody.crew().stream()
         .filter(crew -> crew.job().equals("Director"))
         .map(director -> new DirectorIdDTO(director.id(), director.job()))
         .findFirst()
-        .orElseGet(() -> null);
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    "No se encontró al director dentro de la info de la peli."))
+        .id();
   }
 
-  @Override
-  public DirectorDetailDTO findDirectorOfMovie(Long idMovie) {
-    DetailActor directorAsActor = apiDetailActor.actor(findIdDirector(idMovie).id());
+  public DirectorDetailDTO findDirectorById(Long idDirector) {
+    HttpHeaders header = new HttpHeaders();
+    header.setBearerAuth(token.getToken());
+    HttpEntity<?> entity = new HttpEntity<>(header);
 
-    return new DirectorDetailDTO(
-        directorAsActor.id(),
-        directorAsActor.name(),
-        directorAsActor.birthday(),
-        directorAsActor.profile_path(),
-        directorAsActor.gender(),
-        directorAsActor.place_of_birth(),
-        directorAsActor.popularity(),
-        directorAsActor.biography());
+    ResponseEntity<DirectorDetailDTO> response =
+        restTemplate.exchange(
+            URL_BASE + "/person/" + idDirector, HttpMethod.GET, entity, DirectorDetailDTO.class);
+    return response.getBody();
   }
 }
