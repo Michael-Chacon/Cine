@@ -4,7 +4,7 @@ import com.cine.director.DTO.DirectorDetailDTO;
 import com.cine.director.DTO.DirectorIdDTO;
 
 public interface IApiDirector {
-  DirectorIdDTO findIdDirector(Long idMovie);
+  Long findIdDirector(Long idMovie);
 
-  DirectorDetailDTO findDirectorOfMovie(Long idMovie);
+  DirectorDetailDTO findDirectorById(Long idDirector);
 }
